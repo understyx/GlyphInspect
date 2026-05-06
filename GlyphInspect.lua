@@ -7,6 +7,7 @@ local addon = CreateFrame("Frame")
 local LGT = LibStub and LibStub("LibGroupTalents-1.0", true)
 local window
 local outputBox
+local inspectNotice
 
 local function GetTargetName()
     local name, realm = UnitName("target")
@@ -26,6 +27,21 @@ local function SetOutput(text)
     outputBox:SetCursorPosition(0)
     outputBox:HighlightText(0, 0)
     outputBox:ClearFocus()
+end
+
+local function AttachWindowToInspectFrame()
+    if not window then
+        return
+    end
+
+    window:ClearAllPoints()
+    if InspectTalentFrame then
+        window:SetParent(InspectTalentFrame)
+        window:SetPoint("TOPLEFT", InspectTalentFrame, "TOPRIGHT", 8, -20)
+    else
+        window:SetParent(UIParent)
+        window:SetPoint("CENTER")
+    end
 end
 
 local function BuildGlyphText()
@@ -72,7 +88,7 @@ local function BuildGlyphText()
         }, "\n")
     end
 
-    local lines = {targetName, ""}
+    local lines = {"Current target glyphs: " .. targetName, ""}
     lines[#lines + 1] = "Major Glyphs:"
     if #major == 0 then
         lines[#lines + 1] = "- None"
@@ -108,13 +124,9 @@ local function CreateWindow()
         return
     end
 
-    window = CreateFrame("Frame", "InspectGlyphBoxFrame", UIParent)
+    window = CreateFrame("Frame", "GlyphInspectFrame", UIParent)
     window:SetSize(WINDOW_WIDTH, WINDOW_HEIGHT)
-    window:SetPoint("CENTER")
-    window:SetMovable(true)
     window:EnableMouse(true)
-    window:RegisterForDrag("LeftButton")
-    window:SetClampedToScreen(true)
     window:SetFrameStrata("MEDIUM")
     window:SetBackdrop({
         bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
@@ -125,16 +137,19 @@ local function CreateWindow()
         insets = { left = 4, right = 4, top = 4, bottom = 4 },
     })
     window:SetBackdropColor(0.05, 0.05, 0.05, 0.95)
-    window:SetScript("OnDragStart", window.StartMoving)
-    window:SetScript("OnDragStop", window.StopMovingOrSizing)
+    AttachWindowToInspectFrame()
 
     local title = window:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
     title:SetPoint("TOP", 0, -12)
-    title:SetText("Inspect Glyph Box")
+    title:SetText("GlyphInspect")
+
+    inspectNotice = window:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+    inspectNotice:SetPoint("TOP", title, "BOTTOM", 0, -4)
+    inspectNotice:SetText("Showing glyphs for your current target.")
 
     local refreshButton = CreateFrame("Button", nil, window, "UIPanelButtonTemplate")
     refreshButton:SetSize(70, 22)
-    refreshButton:SetPoint("TOPLEFT", 14, -10)
+    refreshButton:SetPoint("TOPLEFT", 14, -30)
     refreshButton:SetText("Refresh")
     refreshButton:SetScript("OnClick", function()
         addon:RefreshText()
@@ -143,11 +158,11 @@ local function CreateWindow()
     local closeButton = CreateFrame("Button", nil, window, "UIPanelCloseButton")
     closeButton:SetPoint("TOPRIGHT", -4, -4)
 
-    local scrollFrame = CreateFrame("ScrollFrame", "InspectGlyphBoxScrollFrame", window, "UIPanelScrollFrameTemplate")
-    scrollFrame:SetPoint("TOPLEFT", 14, -40)
+    local scrollFrame = CreateFrame("ScrollFrame", "GlyphInspectScrollFrame", window, "UIPanelScrollFrameTemplate")
+    scrollFrame:SetPoint("TOPLEFT", 14, -62)
     scrollFrame:SetPoint("BOTTOMRIGHT", -32, 14)
 
-    outputBox = CreateFrame("EditBox", "InspectGlyphBoxOutput", scrollFrame)
+    outputBox = CreateFrame("EditBox", "GlyphInspectOutput", scrollFrame)
     outputBox:SetMultiLine(true)
     outputBox:SetAutoFocus(false)
     outputBox:SetFontObject(ChatFontNormal)
@@ -159,7 +174,7 @@ local function CreateWindow()
     end)
     outputBox:SetScript("OnTextChanged", function(self)
         local minHeight = WINDOW_HEIGHT - 70
-        local textHeight = self:GetNumLines() * 14 + 12
+        local textHeight = self:GetTextHeight() + 12
         self:SetHeight(math.max(minHeight, textHeight))
     end)
     outputBox:SetScript("OnCursorChanged", function(self, _, y)
@@ -177,12 +192,16 @@ local function CreateWindow()
     window:Show()
 end
 
-SLASH_INSPECTGLYPHBOX1 = "/inspectglyphbox"
-SLASH_INSPECTGLYPHBOX2 = "/igb"
-SlashCmdList.INSPECTGLYPHBOX = function()
+SLASH_GLYPHINSPECT1 = "/glyphinspect"
+SLASH_GLYPHINSPECT2 = "/gi"
+SLASH_GLYPHINSPECT3 = "/inspectglyphbox"
+SLASH_GLYPHINSPECT4 = "/igb"
+SlashCmdList.GLYPHINSPECT = function()
     if not window then
         CreateWindow()
     end
+
+    AttachWindowToInspectFrame()
 
     if window:IsShown() then
         window:Hide()
@@ -195,11 +214,17 @@ end
 addon:SetScript("OnEvent", function(self, event, ...)
     if event == "ADDON_LOADED" then
         local loadedAddon = ...
+        if loadedAddon == "Blizzard_InspectUI" then
+            AttachWindowToInspectFrame()
+            return
+        end
+
         if loadedAddon ~= addonName then
             return
         end
 
         CreateWindow()
+        AttachWindowToInspectFrame()
         addon:RefreshText()
 
         if LGT then
