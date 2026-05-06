@@ -192,13 +192,25 @@ local function CreateWindow()
         elseif self.GetStringHeight then
             textHeight = self:GetStringHeight() + TEXT_HEIGHT_PADDING
         else
-            local lineHeight = self.GetLineHeight and self:GetLineHeight()
-            if not lineHeight then
+            local lineHeight
+            if self.GetLineHeight then
+                lineHeight = self:GetLineHeight()
+            end
+            if not lineHeight or lineHeight <= 0 then
                 local _, fontSize = self:GetFont()
                 lineHeight = fontSize and (fontSize * 1.2) or DEFAULT_LINE_HEIGHT
             end
             local text = self:GetText() or ""
-            local newlineCount = select(2, text:gsub("\n", "\n"))
+            local newlineCount = 0
+            local searchFrom = 1
+            while true do
+                local newlinePos = string.find(text, "\n", searchFrom, true)
+                if not newlinePos then
+                    break
+                end
+                newlineCount = newlineCount + 1
+                searchFrom = newlinePos + 1
+            end
             local lineCount = 1 + newlineCount
             textHeight = lineHeight * lineCount + TEXT_HEIGHT_PADDING
         end
