@@ -35,10 +35,19 @@ local function AttachWindowToInspectFrame()
         return
     end
 
+    window:SetMovable(true)
+    window:RegisterForDrag("LeftButton")
+    window:SetClampedToScreen(true)
+    window:SetScript("OnDragStart", window.StartMoving)
+    window:SetScript("OnDragStop", window.StopMovingOrSizing)
+
     window:ClearAllPoints()
     if InspectTalentFrame then
         window:SetParent(InspectTalentFrame)
         window:SetPoint("TOPLEFT", InspectTalentFrame, "TOPRIGHT", 8, -20)
+        window:SetMovable(false)
+        window:SetScript("OnDragStart", nil)
+        window:SetScript("OnDragStop", nil)
     else
         window:SetParent(UIParent)
         window:SetPoint("CENTER")
@@ -203,8 +212,6 @@ SlashCmdList.GLYPHINSPECT = function()
     if not window then
         CreateWindow()
     end
-
-    AttachWindowToInspectFrame()
 
     if window:IsShown() then
         window:Hide()
