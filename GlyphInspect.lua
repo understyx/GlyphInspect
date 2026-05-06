@@ -3,6 +3,7 @@ local MAX_GLYPH_SOCKETS = 6
 local WINDOW_WIDTH = 360
 local WINDOW_HEIGHT = 240
 local TEXT_HEIGHT_PADDING = 16
+local DEFAULT_LINE_HEIGHT = 12
 
 local addon = CreateFrame("Frame")
 local LGT = LibStub and LibStub("LibGroupTalents-1.0", true)
@@ -191,13 +192,15 @@ local function CreateWindow()
         elseif self.GetStringHeight then
             textHeight = self:GetStringHeight() + TEXT_HEIGHT_PADDING
         else
-            local _, lineHeight = self:GetFont()
-            local text = self:GetText() or ""
-            local lineCount = 1
-            for _ in text:gmatch("\n") do
-                lineCount = lineCount + 1
+            local lineHeight = self.GetLineHeight and self:GetLineHeight()
+            if not lineHeight then
+                local _, fontSize = self:GetFont()
+                lineHeight = fontSize and (fontSize * 1.2) or DEFAULT_LINE_HEIGHT
             end
-            textHeight = (lineHeight or 12) * lineCount + TEXT_HEIGHT_PADDING
+            local text = self:GetText() or ""
+            local newlineCount = select(2, text:gsub("\n", "\n"))
+            local lineCount = 1 + newlineCount
+            textHeight = lineHeight * lineCount + TEXT_HEIGHT_PADDING
         end
         self:SetHeight(math.max(minHeight, textHeight))
     end)
