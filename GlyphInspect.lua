@@ -4,6 +4,7 @@ local WINDOW_WIDTH = 360
 local WINDOW_HEIGHT = 240
 local TEXT_HEIGHT_PADDING = 16
 local DEFAULT_LINE_HEIGHT = 12
+local LINE_HEIGHT_MULTIPLIER = 1.2
 
 local addon = CreateFrame("Frame")
 local LGT = LibStub and LibStub("LibGroupTalents-1.0", true)
@@ -187,18 +188,18 @@ local function CreateWindow()
     outputBox:SetScript("OnTextChanged", function(self)
         local minHeight = WINDOW_HEIGHT - 70
         local textHeight
-        if self.GetTextHeight then
+        if type(self.GetTextHeight) == "function" then
             textHeight = self:GetTextHeight() + TEXT_HEIGHT_PADDING
-        elseif self.GetStringHeight then
+        elseif type(self.GetStringHeight) == "function" then
             textHeight = self:GetStringHeight() + TEXT_HEIGHT_PADDING
         else
             local lineHeight
-            if self.GetLineHeight then
+            if type(self.GetLineHeight) == "function" then
                 lineHeight = self:GetLineHeight()
             end
             if not lineHeight or lineHeight <= 0 then
                 local _, fontSize = self:GetFont()
-                lineHeight = fontSize and (fontSize * 1.2) or DEFAULT_LINE_HEIGHT
+                lineHeight = fontSize and (fontSize * LINE_HEIGHT_MULTIPLIER) or DEFAULT_LINE_HEIGHT
             end
             local text = self:GetText() or ""
             local newlineCount = 0
