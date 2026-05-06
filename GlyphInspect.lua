@@ -39,7 +39,6 @@ local function AttachWindowToInspectFrame()
     if InspectTalentFrame then
         window:SetParent(InspectTalentFrame)
         window:SetPoint("TOPLEFT", InspectTalentFrame, "TOPRIGHT", 8, -20)
-        window:SetMovable(false)
         window:SetScript("OnDragStart", nil)
         window:SetScript("OnDragStop", nil)
     else
