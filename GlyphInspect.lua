@@ -97,7 +97,7 @@ local function BuildGlyphText()
         }, "\n")
     end
 
-    local lines = {"Current Target Glyphs: " .. targetName, ""}
+    local lines = {"Current target glyphs: " .. targetName, ""}
     lines[#lines + 1] = "Major Glyphs:"
     if #major == 0 then
         lines[#lines + 1] = "- None"
@@ -157,7 +157,7 @@ local function CreateWindow()
     inspectNotice:SetPoint("TOPLEFT", 14, -28)
     inspectNotice:SetPoint("TOPRIGHT", -14, -28)
     inspectNotice:SetJustifyH("CENTER")
-    inspectNotice:SetText("Shows Current Target Glyphs when available.")
+    inspectNotice:SetText("Shows current target glyphs when available.")
 
     local refreshButton = CreateFrame("Button", nil, window, "UIPanelButtonTemplate")
     refreshButton:SetSize(70, 22)
