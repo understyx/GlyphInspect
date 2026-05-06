@@ -2,6 +2,7 @@ local addonName = ...
 local MAX_GLYPH_SOCKETS = 6
 local WINDOW_WIDTH = 360
 local WINDOW_HEIGHT = 240
+local TEXT_HEIGHT_PADDING = 16
 
 local addon = CreateFrame("Frame")
 local LGT = LibStub and LibStub("LibGroupTalents-1.0", true)
@@ -144,12 +145,14 @@ local function CreateWindow()
     title:SetText("GlyphInspect")
 
     inspectNotice = window:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-    inspectNotice:SetPoint("TOP", title, "BOTTOM", 0, -4)
+    inspectNotice:SetPoint("TOPLEFT", 14, -28)
+    inspectNotice:SetPoint("TOPRIGHT", -14, -28)
+    inspectNotice:SetJustifyH("CENTER")
     inspectNotice:SetText("Showing glyphs for your current target.")
 
     local refreshButton = CreateFrame("Button", nil, window, "UIPanelButtonTemplate")
     refreshButton:SetSize(70, 22)
-    refreshButton:SetPoint("TOPLEFT", 14, -30)
+    refreshButton:SetPoint("TOPLEFT", inspectNotice, "BOTTOMLEFT", 14, -6)
     refreshButton:SetText("Refresh")
     refreshButton:SetScript("OnClick", function()
         addon:RefreshText()
@@ -174,7 +177,7 @@ local function CreateWindow()
     end)
     outputBox:SetScript("OnTextChanged", function(self)
         local minHeight = WINDOW_HEIGHT - 70
-        local textHeight = self:GetTextHeight() + 12
+        local textHeight = self:GetTextHeight() + TEXT_HEIGHT_PADDING
         self:SetHeight(math.max(minHeight, textHeight))
     end)
     outputBox:SetScript("OnCursorChanged", function(self, _, y)
