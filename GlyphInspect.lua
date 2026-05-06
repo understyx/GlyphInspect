@@ -157,7 +157,7 @@ local function CreateWindow()
     inspectNotice:SetPoint("TOPLEFT", 14, -28)
     inspectNotice:SetPoint("TOPRIGHT", -14, -28)
     inspectNotice:SetJustifyH("CENTER")
-    inspectNotice:SetText("Shows your current target's glyphs when available.")
+    inspectNotice:SetText("Shows Current Target Glyphs when available.")
 
     local refreshButton = CreateFrame("Button", nil, window, "UIPanelButtonTemplate")
     refreshButton:SetSize(70, 22)
@@ -206,7 +206,6 @@ end
 
 SLASH_GLYPHINSPECT1 = "/glyphinspect"
 SLASH_GLYPHINSPECT2 = "/inspectglyphbox"
-SLASH_GLYPHINSPECT3 = "/igb"
 SlashCmdList.GLYPHINSPECT = function()
     if not window then
         CreateWindow()
