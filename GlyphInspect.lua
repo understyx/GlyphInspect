@@ -35,12 +35,6 @@ local function AttachWindowToInspectFrame()
         return
     end
 
-    window:SetMovable(true)
-    window:RegisterForDrag("LeftButton")
-    window:SetClampedToScreen(true)
-    window:SetScript("OnDragStart", window.StartMoving)
-    window:SetScript("OnDragStop", window.StopMovingOrSizing)
-
     window:ClearAllPoints()
     if InspectTalentFrame then
         window:SetParent(InspectTalentFrame)
@@ -51,6 +45,11 @@ local function AttachWindowToInspectFrame()
     else
         window:SetParent(UIParent)
         window:SetPoint("CENTER")
+        window:SetMovable(true)
+        window:RegisterForDrag("LeftButton")
+        window:SetClampedToScreen(true)
+        window:SetScript("OnDragStart", window.StartMoving)
+        window:SetScript("OnDragStop", window.StopMovingOrSizing)
     end
 end
 
@@ -98,7 +97,7 @@ local function BuildGlyphText()
         }, "\n")
     end
 
-    local lines = {"Current target glyphs: " .. targetName, ""}
+    local lines = {"Current Target Glyphs: " .. targetName, ""}
     lines[#lines + 1] = "Major Glyphs:"
     if #major == 0 then
         lines[#lines + 1] = "- None"
