@@ -125,7 +125,6 @@ function addon:RefreshText()
         return
     end
 
-    AttachWindowToInspectFrame()
     SetOutput(BuildGlyphText())
 end
 
@@ -157,7 +156,7 @@ local function CreateWindow()
     inspectNotice:SetPoint("TOPLEFT", 14, -28)
     inspectNotice:SetPoint("TOPRIGHT", -14, -28)
     inspectNotice:SetJustifyH("CENTER")
-    inspectNotice:SetText("Shows current target glyphs when available.")
+    inspectNotice:SetText("Shows current target glyphs (requires LibGroupTalents data).")
 
     local refreshButton = CreateFrame("Button", nil, window, "UIPanelButtonTemplate")
     refreshButton:SetSize(70, 22)
@@ -211,6 +210,8 @@ SlashCmdList.GLYPHINSPECT = function()
         CreateWindow()
     end
 
+    AttachWindowToInspectFrame()
+
     if window:IsShown() then
         window:Hide()
     else
@@ -223,6 +224,9 @@ addon:SetScript("OnEvent", function(self, event, ...)
     if event == "ADDON_LOADED" then
         local loadedAddon = ...
         if loadedAddon == "Blizzard_InspectUI" then
+            if not window then
+                CreateWindow()
+            end
             AttachWindowToInspectFrame()
             return
         end
