@@ -234,7 +234,6 @@ addon:SetScript("OnEvent", function(self, event, ...)
         end
 
         CreateWindow()
-        AttachWindowToInspectFrame()
         addon:RefreshText()
 
         if LGT then
