@@ -246,7 +246,7 @@ addonTable.WotLKGlyphs = {
             "Glyph of Stoneclaw Totem",
             "Glyph of Fire Elemental Totem",
             "Glyph of Feral Spirit",
-            "Glyph of Thunderstorm",
+            "Glyph of Thunder",
             "Glyph of Shocking",
             "Glyph of Chain Lightning",
             "Glyph of Healing Wave",
