@@ -3,6 +3,8 @@ local MAX_GLYPH_SOCKETS = 6
 local WINDOW_WIDTH = 360
 local WINDOW_HEIGHT = 240
 local TEXT_HEIGHT_PADDING = 16
+local DEFAULT_LINE_HEIGHT = 12
+local LINE_HEIGHT_MULTIPLIER = 1.2
 
 local addon = CreateFrame("Frame")
 local LGT = LibStub and LibStub("LibGroupTalents-1.0", true)
@@ -185,7 +187,34 @@ local function CreateWindow()
     end)
     outputBox:SetScript("OnTextChanged", function(self)
         local minHeight = WINDOW_HEIGHT - 70
-        local textHeight = self:GetTextHeight() + TEXT_HEIGHT_PADDING
+        local textHeight
+        if type(self.GetTextHeight) == "function" then
+            textHeight = self:GetTextHeight() + TEXT_HEIGHT_PADDING
+        elseif type(self.GetStringHeight) == "function" then
+            textHeight = self:GetStringHeight() + TEXT_HEIGHT_PADDING
+        else
+            local lineHeight
+            if type(self.GetLineHeight) == "function" then
+                lineHeight = self:GetLineHeight()
+            end
+            if not lineHeight or lineHeight <= 0 then
+                local _, fontSize = self:GetFont()
+                lineHeight = fontSize and (fontSize * LINE_HEIGHT_MULTIPLIER) or DEFAULT_LINE_HEIGHT
+            end
+            local text = self:GetText() or ""
+            local newlineCount = 0
+            local searchFrom = 1
+            while true do
+                local newlinePos = string.find(text, "\n", searchFrom, true)
+                if not newlinePos then
+                    break
+                end
+                newlineCount = newlineCount + 1
+                searchFrom = newlinePos + 1
+            end
+            local lineCount = 1 + newlineCount
+            textHeight = lineHeight * lineCount + TEXT_HEIGHT_PADDING
+        end
         self:SetHeight(math.max(minHeight, textHeight))
     end)
     outputBox:SetScript("OnCursorChanged", function(self, _, y)
