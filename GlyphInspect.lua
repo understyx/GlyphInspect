@@ -11,6 +11,7 @@ local LGT = LibStub and LibStub("LibGroupTalents-1.0", true)
 local window
 local outputBox
 local inspectNotice
+local inspectUnitHooked
 
 local function GetTargetName()
     local name, realm = UnitName("target")
@@ -73,19 +74,12 @@ local function BuildGlyphText()
     LGT:GetUnitTalents("target", true)
 
     local glyphs = {}
-    local major = {}
-    local minor = {}
     local glyphSpellIDs = { LGT:GetUnitGlyphs("target") }
 
     for socket = 1, MAX_GLYPH_SOCKETS do
         local spellID = glyphSpellIDs[socket]
         if spellID and spellID > 0 then
             local spellName = GetSpellInfo(spellID) or ("Spell ID " .. tostring(spellID))
-            if socket <= 3 then
-                major[#major + 1] = spellName
-            else
-                minor[#minor + 1] = spellName
-            end
             glyphs[#glyphs + 1] = spellName
         end
     end
@@ -99,24 +93,9 @@ local function BuildGlyphText()
         }, "\n")
     end
 
-    local lines = {"Current target glyphs: " .. targetName, ""}
-    lines[#lines + 1] = "Major Glyphs:"
-    if #major == 0 then
-        lines[#lines + 1] = "- None"
-    else
-        for _, name in ipairs(major) do
-            lines[#lines + 1] = "- " .. name
-        end
-    end
-
-    lines[#lines + 1] = ""
-    lines[#lines + 1] = "Minor Glyphs:"
-    if #minor == 0 then
-        lines[#lines + 1] = "- None"
-    else
-        for _, name in ipairs(minor) do
-            lines[#lines + 1] = "- " .. name
-        end
+    local lines = {"Inspected player glyphs: " .. targetName, "", "Glyphs:"}
+    for _, name in ipairs(glyphs) do
+        lines[#lines + 1] = "- " .. name
     end
 
     return table.concat(lines, "\n")
@@ -158,7 +137,7 @@ local function CreateWindow()
     inspectNotice:SetPoint("TOPLEFT", 14, -28)
     inspectNotice:SetPoint("TOPRIGHT", -14, -28)
     inspectNotice:SetJustifyH("CENTER")
-    inspectNotice:SetText("Shows current target glyphs (requires LibGroupTalents data).")
+    inspectNotice:SetText("Shows glyphs for the inspected target (requires LibGroupTalents data).")
 
     local refreshButton = CreateFrame("Button", nil, window, "UIPanelButtonTemplate")
     refreshButton:SetSize(70, 22)
@@ -229,7 +208,7 @@ local function CreateWindow()
 
     scrollFrame:SetScrollChild(outputBox)
 
-    window:Show()
+    window:Hide()
 end
 
 SLASH_GLYPHINSPECT1 = "/glyphinspect"
@@ -249,6 +228,24 @@ SlashCmdList.GLYPHINSPECT = function()
     end
 end
 
+local function HookInspectUnitIfAvailable()
+    if inspectUnitHooked or type(InspectUnit) ~= "function" then
+        return
+    end
+
+    hooksecurefunc("InspectUnit", function(unit)
+        if unit and UnitExists(unit) and UnitIsPlayer(unit) then
+            if not window then
+                CreateWindow()
+            end
+            AttachWindowToInspectFrame()
+            window:Show()
+            addon:RefreshText()
+        end
+    end)
+    inspectUnitHooked = true
+end
+
 addon:SetScript("OnEvent", function(self, event, ...)
     if event == "ADDON_LOADED" then
         local loadedAddon = ...
@@ -257,6 +254,7 @@ addon:SetScript("OnEvent", function(self, event, ...)
                 CreateWindow()
             end
             AttachWindowToInspectFrame()
+            HookInspectUnitIfAvailable()
             return
         end
 
@@ -265,7 +263,7 @@ addon:SetScript("OnEvent", function(self, event, ...)
         end
 
         CreateWindow()
-        addon:RefreshText()
+        HookInspectUnitIfAvailable()
 
         if LGT then
             LGT.RegisterCallback(addon, "LibGroupTalents_Update", "RefreshText")
