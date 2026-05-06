@@ -205,7 +205,7 @@ local function CreateWindow()
 end
 
 SLASH_GLYPHINSPECT1 = "/glyphinspect"
-SLASH_GLYPHINSPECT2 = "/inspectglyphbox"
+SLASH_GLYPHINSPECT2 = "/ginspect"
 SlashCmdList.GLYPHINSPECT = function()
     if not window then
         CreateWindow()
