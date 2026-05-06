@@ -185,7 +185,20 @@ local function CreateWindow()
     end)
     outputBox:SetScript("OnTextChanged", function(self)
         local minHeight = WINDOW_HEIGHT - 70
-        local textHeight = self:GetTextHeight() + TEXT_HEIGHT_PADDING
+        local textHeight
+        if self.GetTextHeight then
+            textHeight = self:GetTextHeight() + TEXT_HEIGHT_PADDING
+        elseif self.GetStringHeight then
+            textHeight = self:GetStringHeight() + TEXT_HEIGHT_PADDING
+        else
+            local _, lineHeight = self:GetFont()
+            local text = self:GetText() or ""
+            local lineCount = 1
+            for _ in text:gmatch("\n") do
+                lineCount = lineCount + 1
+            end
+            textHeight = (lineHeight or 12) * lineCount + TEXT_HEIGHT_PADDING
+        end
         self:SetHeight(math.max(minHeight, textHeight))
     end)
     outputBox:SetScript("OnCursorChanged", function(self, _, y)
