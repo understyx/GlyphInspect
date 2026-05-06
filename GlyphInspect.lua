@@ -93,7 +93,7 @@ local function BuildGlyphText()
         }, "\n")
     end
 
-    local lines = {"Current target glyphs: " .. targetName, "", "Glyphs:"}
+    local lines = {"Inspected player glyphs: " .. targetName, "", "Glyphs:"}
     for _, name in ipairs(glyphs) do
         lines[#lines + 1] = "- " .. name
     end
