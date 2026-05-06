@@ -39,6 +39,7 @@ local function AttachWindowToInspectFrame()
     if InspectTalentFrame then
         window:SetParent(InspectTalentFrame)
         window:SetPoint("TOPLEFT", InspectTalentFrame, "TOPRIGHT", 8, -20)
+        window:SetMovable(false)
         window:SetScript("OnDragStart", nil)
         window:SetScript("OnDragStop", nil)
     else
@@ -155,7 +156,7 @@ local function CreateWindow()
     inspectNotice:SetPoint("TOPLEFT", 14, -28)
     inspectNotice:SetPoint("TOPRIGHT", -14, -28)
     inspectNotice:SetJustifyH("CENTER")
-    inspectNotice:SetText("Showing glyphs for your current target.")
+    inspectNotice:SetText("Shows your current target's glyphs when available.")
 
     local refreshButton = CreateFrame("Button", nil, window, "UIPanelButtonTemplate")
     refreshButton:SetSize(70, 22)
