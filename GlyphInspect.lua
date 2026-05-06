@@ -152,7 +152,7 @@ local function CreateWindow()
 
     local refreshButton = CreateFrame("Button", nil, window, "UIPanelButtonTemplate")
     refreshButton:SetSize(70, 22)
-    refreshButton:SetPoint("TOPLEFT", inspectNotice, "BOTTOMLEFT", 14, -6)
+    refreshButton:SetPoint("TOPLEFT", inspectNotice, "BOTTOMLEFT", 0, -6)
     refreshButton:SetText("Refresh")
     refreshButton:SetScript("OnClick", function()
         addon:RefreshText()
