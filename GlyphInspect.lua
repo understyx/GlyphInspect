@@ -1,4 +1,4 @@
-local addonName = ...
+local addonName, addonTable = ...
 local MAX_GLYPH_SOCKETS = 6
 local WINDOW_WIDTH = 360
 local WINDOW_HEIGHT = 240
@@ -56,6 +56,26 @@ local function AttachWindowToInspectFrame()
     end
 end
 
+local function BuildGlyphTypeLookup(classToken)
+    local classGlyphs = addonTable and addonTable.WotLKGlyphs and addonTable.WotLKGlyphs[classToken]
+    if not classGlyphs then
+        return nil, nil
+    end
+
+    local majorLookup = {}
+    local minorLookup = {}
+
+    for _, glyphName in ipairs(classGlyphs.major or {}) do
+        majorLookup[glyphName] = true
+    end
+
+    for _, glyphName in ipairs(classGlyphs.minor or {}) do
+        minorLookup[glyphName] = true
+    end
+
+    return majorLookup, minorLookup
+end
+
 local function BuildGlyphText()
     if not LGT then
         return "LibGroupTalents failed to load."
@@ -73,18 +93,28 @@ local function BuildGlyphText()
 
     LGT:GetUnitTalents("target", true)
 
-    local glyphs = {}
+    local _, classToken = UnitClass("target")
+    local majorLookup, minorLookup = BuildGlyphTypeLookup(classToken)
+    local majorGlyphs = {}
+    local minorGlyphs = {}
+    local unknownGlyphs = {}
     local glyphSpellIDs = { LGT:GetUnitGlyphs("target") }
 
     for socket = 1, MAX_GLYPH_SOCKETS do
         local spellID = glyphSpellIDs[socket]
         if spellID and spellID > 0 then
             local spellName = GetSpellInfo(spellID) or ("Spell ID " .. tostring(spellID))
-            glyphs[#glyphs + 1] = spellName
+            if majorLookup and majorLookup[spellName] then
+                majorGlyphs[#majorGlyphs + 1] = spellName
+            elseif minorLookup and minorLookup[spellName] then
+                minorGlyphs[#minorGlyphs + 1] = spellName
+            else
+                unknownGlyphs[#unknownGlyphs + 1] = spellName
+            end
         end
     end
 
-    if #glyphs == 0 then
+    if (#majorGlyphs + #minorGlyphs + #unknownGlyphs) == 0 then
         return table.concat({
             targetName,
             "",
@@ -93,9 +123,30 @@ local function BuildGlyphText()
         }, "\n")
     end
 
-    local lines = {"Inspected player glyphs: " .. targetName, "", "Glyphs:"}
-    for _, name in ipairs(glyphs) do
+    local lines = {"Inspected player glyphs: " .. targetName, "", "Major glyphs:"}
+
+    if #majorGlyphs == 0 then
+        lines[#lines + 1] = "- None"
+    end
+    for _, name in ipairs(majorGlyphs) do
         lines[#lines + 1] = "- " .. name
+    end
+
+    lines[#lines + 1] = ""
+    lines[#lines + 1] = "Minor glyphs:"
+    if #minorGlyphs == 0 then
+        lines[#lines + 1] = "- None"
+    end
+    for _, name in ipairs(minorGlyphs) do
+        lines[#lines + 1] = "- " .. name
+    end
+
+    if #unknownGlyphs > 0 then
+        lines[#lines + 1] = ""
+        lines[#lines + 1] = "Unclassified glyphs:"
+        for _, name in ipairs(unknownGlyphs) do
+            lines[#lines + 1] = "- " .. name
+        end
     end
 
     return table.concat(lines, "\n")
