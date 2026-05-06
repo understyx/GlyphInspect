@@ -9,4 +9,5 @@ Libs\ChatThrottleLib\ChatThrottleLib.lua
 Libs\LibGroupTalents-1.0\LibTalentQuery-1.0.lua
 Libs\LibGroupTalents-1.0\LibGroupTalents-1.0.lua
 
+Glyphs.lua
 GlyphInspect.lua
