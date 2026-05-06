@@ -125,6 +125,7 @@ function addon:RefreshText()
         return
     end
 
+    AttachWindowToInspectFrame()
     SetOutput(BuildGlyphText())
 end
 
@@ -204,9 +205,8 @@ local function CreateWindow()
 end
 
 SLASH_GLYPHINSPECT1 = "/glyphinspect"
-SLASH_GLYPHINSPECT2 = "/gi"
-SLASH_GLYPHINSPECT3 = "/inspectglyphbox"
-SLASH_GLYPHINSPECT4 = "/igb"
+SLASH_GLYPHINSPECT2 = "/inspectglyphbox"
+SLASH_GLYPHINSPECT3 = "/igb"
 SlashCmdList.GLYPHINSPECT = function()
     if not window then
         CreateWindow()
